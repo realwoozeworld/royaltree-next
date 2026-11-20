@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Simple in-memory IP rate limit (max 5 requests per 10 mins)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 export async function POST(req: NextRequest) {
   try {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "RESEND_API_KEY is not configured." },
+        { status: 500 }
+      );
+    }
+
+    const resend = new Resend(apiKey);
+
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const now = Date.now();
@@ -28,7 +35,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { fullName, phone, region, notes, quantities, website } = body;
 
-    // Bot honeypot check
     if (website) {
       return NextResponse.json({ ok: true });
     }

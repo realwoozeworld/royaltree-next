@@ -7,15 +7,28 @@ import { Language } from "@/types/botanical";
 interface HeroProps {
   lang: Language;
   onOpenOrderModal: () => void;
+  imageUrl?: string;
+  captionKa?: string;
+  captionEn?: string;
 }
 
-export const Hero: React.FC<HeroProps> = ({ lang, onOpenOrderModal }) => {
+export const Hero: React.FC<HeroProps> = ({
+  lang,
+  onOpenOrderModal,
+  imageUrl,
+  captionKa,
+  captionEn,
+}) => {
   const stats = [
     { value: "4–5 მ", ka: "წლიური ზრდა", en: "Annual Growth" },
     { value: "10×", ka: "CO₂ შთანთქმა", en: "CO₂ Absorption" },
     { value: "5–7 წ.", ka: "მერქნის ციკლი", en: "Harvest Cycle" },
     { value: "10₾-დან", ka: "1-წლიანი ნერგი", en: "1-Yr Seedling" },
   ];
+
+  const activeImage =
+    imageUrl ||
+    "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85";
 
   return (
     <section className="relative z-10 pt-36 pb-20 sm:pt-44 sm:pb-28 px-4 sm:px-6">
@@ -77,16 +90,15 @@ export const Hero: React.FC<HeroProps> = ({ lang, onOpenOrderModal }) => {
             <div className="glass-panel rounded-[2rem] p-3.5 relative">
               <div className="relative h-[380px] sm:h-[430px] rounded-[1.5rem] overflow-hidden">
                 <Image
-                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85"
+                  src={activeImage}
                   alt="Paulownia Tomentosa Royal Tree Plantation"
                   fill
                   priority
+                  unoptimized
                   className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 40vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#060b08]/90 via-[#060b08]/20 to-transparent pointer-events-none" />
 
-                {/* Top Estate Badge */}
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                   <span className="px-3.5 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-[#d4af37]/35 text-[10px] font-semibold tracking-[0.2em] uppercase text-[#f5e7bd]">
                     {lang === "ka"
@@ -98,7 +110,6 @@ export const Hero: React.FC<HeroProps> = ({ lang, onOpenOrderModal }) => {
                   </span>
                 </div>
 
-                {/* Bottom Caption */}
                 <div className="absolute bottom-5 left-5 right-5">
                   <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#d4af37] block mb-1">
                     {lang === "ka"
@@ -110,8 +121,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onOpenOrderModal }) => {
                   </h2>
                   <p className="text-xs text-[#f4f1ea]/75">
                     {lang === "ka"
-                      ? "სწორღეროიანი, სწრაფმზარდი ელიტარული ნერგები 10₾-დან."
-                      : "Straight-trunk, fast-growing elite seedlings starting from 10₾."}
+                      ? captionKa ||
+                        "სწორღეროიანი, სწრაფმზარდი ელიტარული ნერგები 10₾-დან."
+                      : captionEn ||
+                        "Straight-trunk, fast-growing elite seedlings starting from 10₾."}
                   </p>
                 </div>
               </div>

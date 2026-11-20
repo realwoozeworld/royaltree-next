@@ -1,56 +1,56 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { DepthHud } from "@/components/canvas/DepthHud";
+import React, { useEffect, useState } from "react";
 import { PaulowniaCanvas } from "@/components/canvas/PaulowniaCanvas";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "../components/layout/Navbar";
-import { OrderModal } from "@/components/modals/OrderModal";
-import { AdvantagesBento } from "@/components/sections/AdvantagesBento";
+import { DepthHud } from "@/components/canvas/DepthHud";
+import { Navbar } from "@/components/layout/Navbar";
 import { Hero } from "@/components/sections/Hero";
+import { AdvantagesBento } from "@/components/sections/AdvantagesBento";
+import { CalculatorSection } from "@/components/sections/CalculatorSection";
 import { KnowledgeSanctuary } from "@/components/sections/KnowledgeSanctuary";
 import { PlantationGallery } from "@/components/sections/PlantationGallery";
-import { RoiConfigurator } from "@/components/sections/RoiConfigurator";
+import { Footer } from "@/components/layout/Footer";
+import { OrderModal } from "@/components/modals/OrderModal";
 import { Language, ThemeMode, TierQuantities } from "@/types/botanical";
+import {
+  DEFAULT_SITE_CONTENT,
+  DynamicSiteContent,
+  fetchSiteContent,
+} from "@/lib/contentStore";
 
 export default function HomePage() {
+  const [theme, setTheme] = useState<ThemeMode>("dark");
   const [lang, setLang] = useState<Language>("ka");
-  const [theme, setTheme] = useState<ThemeMode>(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("royaltree-theme") as ThemeMode | null;
-      if (savedTheme === "light" || savedTheme === "dark") {
-        return savedTheme;
-      }
-    }
-    return "dark";
-  });
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [orderModalOpen, setOrderModalOpen] = useState<boolean>(false);
-
   const [quantities, setQuantities] = useState<TierQuantities>({
     tier1: 125,
     tier2: 500,
     tier3: 0,
   });
+  const [siteContent, setSiteContent] =
+    useState<DynamicSiteContent>(DEFAULT_SITE_CONTENT);
 
-  // Sync html class for Light / Dark theme
   useEffect(() => {
     const root = document.documentElement;
     if (theme === "light") {
-      root.classList.add("light");
       root.classList.remove("dark");
+      root.classList.add("light");
     } else {
-      root.classList.add("dark");
       root.classList.remove("light");
+      root.classList.add("dark");
     }
-    localStorage.setItem("royaltree-theme", theme);
   }, [theme]);
 
-  const handleToggleTheme = () => {
+  useEffect(() => {
+    fetchSiteContent().then(setSiteContent);
+  }, []);
+
+  const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  const handleToggleLang = () => {
+  const toggleLang = () => {
     setLang((prev) => (prev === "ka" ? "en" : "ka"));
   };
 
@@ -69,47 +69,46 @@ export default function HomePage() {
     });
   };
 
-  const handleScrollProgress = useCallback((progress: number) => {
-    setScrollProgress(progress);
-  }, []);
-
   return (
-    <main className="relative min-h-screen">
-      {/* Scroll-driven Botanical Paulownia Tree & Roots Canvas */}
-      <PaulowniaCanvas
-        theme={theme}
-        onScrollProgress={handleScrollProgress}
-      />
-
-      {/* Right-Edge Botanical Depth Indicator */}
+    <main className="relative min-h-screen overflow-x-hidden">
+      <PaulowniaCanvas theme={theme} onScrollProgress={setScrollProgress} />
       <DepthHud progress={scrollProgress} lang={lang} />
 
-      {/* Floating Glass Navbar */}
       <Navbar
-        lang={lang}
         theme={theme}
-        onToggleLang={handleToggleLang}
-        onToggleTheme={handleToggleTheme}
+        onToggleTheme={toggleTheme}
+        lang={lang}
+        onToggleLang={toggleLang}
         onOpenOrderModal={() => setOrderModalOpen(true)}
       />
 
-      {/* Page Sections */}
-      <Hero lang={lang} onOpenOrderModal={() => setOrderModalOpen(true)} />
+      <Hero
+        lang={lang}
+        onOpenOrderModal={() => setOrderModalOpen(true)}
+        imageUrl={siteContent.heroImageUrl}
+        captionKa={siteContent.heroCaptionKa}
+        captionEn={siteContent.heroCaptionEn}
+      />
+
       <AdvantagesBento lang={lang} />
-      <RoiConfigurator
+
+      <CalculatorSection
         lang={lang}
         quantities={quantities}
         onChangeQuantity={handleChangeQuantity}
         onApplyPreset={handleApplyPreset}
         onOpenOrderModal={() => setOrderModalOpen(true)}
       />
-      <KnowledgeSanctuary lang={lang} />
-      <PlantationGallery lang={lang} />
 
-      {/* Contact & Footer */}
-      <Footer lang={lang} onOpenOrderModal={() => setOrderModalOpen(true)} />
+      <KnowledgeSanctuary lang={lang} tabs={siteContent.dossierTabs} />
 
-      {/* Seedling Reservation Modal */}
+      <PlantationGallery lang={lang} items={siteContent.gallery} />
+
+      <Footer
+        lang={lang}
+        onOpenOrderModal={() => setOrderModalOpen(true)}
+      />
+
       <OrderModal
         isOpen={orderModalOpen}
         onClose={() => setOrderModalOpen(false)}

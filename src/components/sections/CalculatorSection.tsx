@@ -11,7 +11,7 @@ interface RoiConfiguratorProps {
   onOpenOrderModal: () => void;
 }
 
-export const RoiConfigurator: React.FC<RoiConfiguratorProps> = ({
+export const CalculatorSection: React.FC<RoiConfiguratorProps> = ({
   lang,
   quantities,
   onChangeQuantity,

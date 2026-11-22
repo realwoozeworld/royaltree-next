@@ -1,6 +1,7 @@
 import { DOSSIER_TABS, GALLERY_ITEMS } from "@/data/paulowniaData";
 import { DossierTabItem, GalleryItem } from "@/types/botanical";
 import { supabase } from "./supabase";
+import { saveSiteContentAction } from "./adminActions";
 
 export interface DynamicSiteContent {
   heroImageUrl: string;
@@ -46,23 +47,7 @@ export async function fetchSiteContent(): Promise<DynamicSiteContent> {
 export async function saveSiteContent(
   content: DynamicSiteContent
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!supabase) {
-    return { ok: false, error: "Supabase არ არის კონფიგურირებული (.env.local)" };
-  }
-
-  const { error } = await supabase.from("site_content").upsert(
-    {
-      key: "main",
-      value: content,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "key" }
-  );
-
-  if (error) {
-    return { ok: false, error: error.message };
-  }
-  return { ok: true };
+  return saveSiteContentAction(content);
 }
 
 export async function uploadMediaFile(

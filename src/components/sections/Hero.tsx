@@ -117,7 +117,7 @@ export const Hero: React.FC<HeroProps> = ({
                       : "CERTIFIED GENETICS"}
                   </span>
                   <h2 className="font-display text-xl sm:text-2xl font-bold text-[#f4f1ea] mb-1">
-                    Paulownia Tomentosa
+                    პავლოვნია ტომენტოზა • სამეფო ხე
                   </h2>
                   <p className="text-xs text-[#f4f1ea]/75">
                     {lang === "ka"

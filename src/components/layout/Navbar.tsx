@@ -33,8 +33,78 @@ export const Navbar: React.FC<NavbarProps> = ({
       <nav className="max-w-7xl mx-auto glass-panel rounded-full px-5 sm:px-7 py-3 flex items-center justify-between gap-4">
         {/* Brand */}
         <a href="#" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-full border border-[var(--gold-main)]/50 flex items-center justify-center bg-[var(--gold-main)]/10 text-[var(--gold-main)] font-display font-bold text-sm">
-            R
+          <div className="relative w-10 h-10 rounded-full flex items-center justify-center shadow-[0_0_18px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_24px_rgba(212,175,55,0.42)] group-hover:scale-105 transition-all duration-300">
+            <svg
+              viewBox="0 0 44 44"
+              className="w-10 h-10"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="rtGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#fbf0ce" />
+                  <stop offset="48%" stopColor="#d4af37" />
+                  <stop offset="100%" stopColor="#9c721c" />
+                </linearGradient>
+                <radialGradient id="rtMedallionBg" cx="35%" cy="30%" r="75%">
+                  <stop offset="0%" stopColor="#d4af37" stopOpacity="0.22" />
+                  <stop offset="65%" stopColor="#122217" stopOpacity="0.38" />
+                  <stop offset="100%" stopColor="#070e09" stopOpacity="0.55" />
+                </radialGradient>
+              </defs>
+
+              {/* Medallion Base */}
+              <circle cx="22" cy="22" r="20" fill="url(#rtMedallionBg)" />
+
+              {/* Outer Metallic Gold Ring */}
+              <circle
+                cx="22"
+                cy="22"
+                r="20"
+                fill="none"
+                stroke="url(#rtGoldGrad)"
+                strokeWidth="1.4"
+                strokeOpacity="0.88"
+              />
+
+              {/* Inner Hairline Filigree Ring */}
+              <circle
+                cx="22"
+                cy="22"
+                r="16.8"
+                fill="none"
+                stroke="url(#rtGoldGrad)"
+                strokeWidth="0.6"
+                strokeOpacity="0.45"
+              />
+
+              {/* Subtle 3-Point Empress Crown / Botanical Bud above R */}
+              <path
+                d="M17.5 13.2 L19.4 9.8 L22 11.7 L24.6 9.8 L26.5 13.2 Z"
+                fill="url(#rtGoldGrad)"
+                opacity="0.92"
+              />
+
+              {/* Sculpted Royal 'R' Monogram */}
+              <text
+                x="22"
+                y="29.5"
+                textAnchor="middle"
+                fill="url(#rtGoldGrad)"
+                fontSize="16.5"
+                fontWeight="700"
+                fontFamily="Georgia, 'Times New Roman', serif"
+                letterSpacing="0.5"
+              >
+                R
+              </text>
+
+              {/* Tiny Bottom Botanical Leaf Accent */}
+              <path
+                d="M22 35.6 C20.2 34.4, 20.5 32.8, 22 32.2 C23.5 32.8, 23.8 34.4, 22 35.6 Z"
+                fill="url(#rtGoldGrad)"
+                opacity="0.8"
+              />
+            </svg>
           </div>
           <div className="flex flex-col">
             <span className="font-display text-sm sm:text-base font-bold tracking-wider uppercase">

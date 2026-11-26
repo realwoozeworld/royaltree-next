@@ -1,7 +1,6 @@
 import { DOSSIER_TABS, GALLERY_ITEMS } from "@/data/paulowniaData";
 import { DossierTabItem, GalleryItem } from "@/types/botanical";
 import { supabase } from "./supabase";
-import { saveSiteContentAction } from "./adminActions";
 
 export interface DynamicSiteContent {
   heroImageUrl: string;
@@ -47,33 +46,39 @@ export async function fetchSiteContent(): Promise<DynamicSiteContent> {
 export async function saveSiteContent(
   content: DynamicSiteContent
 ): Promise<{ ok: boolean; error?: string }> {
-  return saveSiteContentAction(content);
+  try {
+    const res = await fetch("/api/admin/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(content),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { ok: false, error: data.error || "შენახვა ვერ მოხერხდა" };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "ქსელის შეცდომა შენახვისას" };
+  }
 }
 
 export async function uploadMediaFile(
   file: File
 ): Promise<{ url?: string; error?: string }> {
-  if (!supabase) {
-    return { error: "Supabase არ არის კონფიგურირებული" };
-  }
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const ext = file.name.split(".").pop() || "jpg";
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("royal-tree-media")
-    .upload(fileName, file, {
-      cacheControl: "3600",
-      upsert: false,
+    const res = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
     });
-
-  if (uploadError) {
-    return { error: uploadError.message };
+    const data = await res.json();
+    if (!res.ok) {
+      return { error: data.error || "ატვირთვა ვერ მოხერხდა" };
+    }
+    return { url: data.url };
+  } catch {
+    return { error: "ქსელის შეცდომა ატვირთვისას" };
   }
-
-  const { data } = supabase.storage
-    .from("royal-tree-media")
-    .getPublicUrl(fileName);
-
-  return { url: data.publicUrl };
 }

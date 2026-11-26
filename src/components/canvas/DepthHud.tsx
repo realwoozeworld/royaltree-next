@@ -1,15 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Language } from "@/types/botanical";
 
 interface DepthHudProps {
-  progress: number;
+  progress?: number;
   lang: Language;
 }
 
 export const DepthHud: React.FC<DepthHudProps> = ({ progress, lang }) => {
-  const pct = Math.round(progress * 100);
+  const [liveProgress, setLiveProgress] = useState<number>(progress ?? 0);
+
+  useEffect(() => {
+    if (typeof progress === "number") return;
+    const handleProgress = (e: Event) => {
+      const custom = e as CustomEvent<number>;
+      if (typeof custom.detail === "number") {
+        setLiveProgress(custom.detail);
+      }
+    };
+    window.addEventListener("royaltree:scroll-progress", handleProgress);
+    return () => {
+      window.removeEventListener("royaltree:scroll-progress", handleProgress);
+    };
+  }, [progress]);
+
+  const activeProgress = typeof progress === "number" ? progress : liveProgress;
+  const pct = Math.round(activeProgress * 100);
 
   const stages = [
     { fraction: 0.0, ka: "ვარჯი", en: "CANOPY" },
@@ -19,7 +36,7 @@ export const DepthHud: React.FC<DepthHudProps> = ({ progress, lang }) => {
   ];
 
   const activeIndex =
-    progress < 0.25 ? 0 : progress < 0.52 ? 1 : progress < 0.78 ? 2 : 3;
+    activeProgress < 0.25 ? 0 : activeProgress < 0.52 ? 1 : activeProgress < 0.78 ? 2 : 3;
 
   const activeStage = stages[activeIndex];
 

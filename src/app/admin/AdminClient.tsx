@@ -504,7 +504,7 @@ export default function AdminClient({
             <span className="text-[10px] font-bold tracking-widest uppercase text-white/50 block mb-1">
               სულ შეკვეთები
             </span>
-            <div className="font-display text-3xl font-bold text-[#f4f1ea]">
+            <div className="font-body text-3xl font-semibold tabular-nums text-[#f4f1ea]">
               {kpiStats.totalOrders}
             </div>
             <span className="text-[11px] text-white/40 mt-1 block">რეგისტრირებული</span>
@@ -514,7 +514,7 @@ export default function AdminClient({
             <span className="text-[10px] font-bold tracking-widest uppercase text-amber-400/80 block mb-1">
               ახალი / მოლოდინში
             </span>
-            <div className="font-display text-3xl font-bold text-amber-200">
+            <div className="font-body text-3xl font-semibold tabular-nums text-amber-200">
               {kpiStats.pendingOrders}
             </div>
             <span className="text-[11px] text-amber-400/60 mt-1 block">საჭიროებს დამუშავებას</span>
@@ -524,7 +524,7 @@ export default function AdminClient({
             <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400/80 block mb-1">
               დადასტურებული / გაგზავნილი
             </span>
-            <div className="font-display text-3xl font-bold text-emerald-200">
+            <div className="font-body text-3xl font-semibold tabular-nums text-emerald-200">
               {kpiStats.completedOrders}
             </div>
             <span className="text-[11px] text-emerald-400/60 mt-1 block">დახურული გარიგებები</span>
@@ -534,7 +534,7 @@ export default function AdminClient({
             <span className="text-[10px] font-bold tracking-widest uppercase text-sky-400/80 block mb-1">
               ჯამური ბრუნვა
             </span>
-            <div className="font-display text-3xl font-bold text-sky-200">
+            <div className="font-body text-3xl font-semibold tabular-nums text-sky-200">
               {kpiStats.totalRevenue.toLocaleString()} ₾
             </div>
             <span className="text-[11px] text-sky-400/60 mt-1 block">

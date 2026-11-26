@@ -29,15 +29,15 @@ export const PlantationGallery: React.FC<PlantationGalleryProps> = ({
               ? "04 / მეურნეობის ვიზუალური არქივი"
               : "04 / VISUAL ARCHIVE"}
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold mb-4">
+          <h2 className="font-display text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-[0.01em] mb-4">
             {lang === "ka"
-              ? "ჩვენი პლანტაცია ახალქალაქში"
-              : "Our Akhalkalaki Plantation"}
+              ? "ჩვენი პლანტაცია მეფისქალაქში"
+              : "Our Mepiskalaki Plantation"}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
             {lang === "ka"
-              ? "კასპის რაიონი, სოფ. ახალქალაქი — სერტიფიცირებული სანერგე მეურნეობა და სამრეწველო კორომები."
-              : "Akhalkalaki village, Kaspi Municipality — certified nursery and commercial Paulownia groves."}
+              ? "კასპის რაიონი, სოფ. მეფისქალაქი — სერტიფიცირებული სანერგე მეურნეობა და სამრეწველო კორომები."
+              : "Mepiskalaki village, Kaspi Municipality — certified nursery and commercial Paulownia groves."}
           </p>
         </div>
 

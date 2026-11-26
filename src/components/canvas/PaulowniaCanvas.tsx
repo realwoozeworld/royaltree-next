@@ -687,6 +687,237 @@ function createPanicleSprite(variant: number): SpriteCanvas {
   return canvas;
 }
 
+/**
+ * Pre-renders a photorealistic Paulownia Tomentosa trunk onto an OffscreenCanvas
+ * with organic curvature, upper canopy branches, flared root collar, 3D cylindrical
+ * bark shading, subtle lenticels/fissures, and delicate golden vascular veins.
+ */
+function createTrunkSprite(
+  trunkSpanH: number,
+  isMobile: boolean,
+  isLight: boolean
+): { canvas: SpriteCanvas; w: number; h: number; topPad: number } {
+  const topPad = 120;
+  const bottomPad = 24;
+  const w = isMobile ? 280 : 420;
+  const h = Math.max(200, Math.ceil(trunkSpanH) + topPad + bottomPad);
+  const { canvas, ctx } = createOffscreenSurface(w, h);
+  if (!ctx) return { canvas, w, h, topPad };
+
+  const cx = w * 0.5;
+  const topY = topPad;
+  const bottomY = topPad + trunkSpanH;
+  const span = Math.max(1, bottomY - topY);
+
+  const topHalfW = isMobile ? 15 : 22;
+  const botHalfW = isMobile ? 38 : 56;
+  const flareExtra = isMobile ? 16 : 26;
+
+  // Centerline organic S-curve offset
+  const centerOffsetAt = (t: number) => Math.sin(t * Math.PI * 1.35) * (isMobile ? 6 : 10);
+  const halfWidthAt = (t: number) => {
+    const base = topHalfW + (botHalfW - topHalfW) * Math.pow(t, 0.88);
+    // Smooth root flare near the soil collar (t > 0.82)
+    const flare = t > 0.8 ? Math.pow((t - 0.8) / 0.2, 2.2) * flareExtra : 0;
+    return base + flare;
+  };
+
+  const steps = 36;
+  const leftPts: Array<{ x: number; y: number }> = [];
+  const rightPts: Array<{ x: number; y: number }> = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const y = topY + span * t;
+    const midX = cx + centerOffsetAt(t);
+    const hw = halfWidthAt(t);
+    leftPts.push({ x: midX - hw, y });
+    rightPts.push({ x: midX + hw, y });
+  }
+
+  const traceTrunkPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(leftPts[0].x, leftPts[0].y);
+    for (let i = 1; i < leftPts.length; i++) {
+      ctx.lineTo(leftPts[i].x, leftPts[i].y);
+    }
+    // Rounded soil-collar base
+    ctx.quadraticCurveTo(
+      cx + centerOffsetAt(1),
+      bottomY + 12,
+      rightPts[rightPts.length - 1].x,
+      rightPts[rightPts.length - 1].y
+    );
+    for (let i = rightPts.length - 2; i >= 0; i--) {
+      ctx.lineTo(rightPts[i].x, rightPts[i].y);
+    }
+    ctx.closePath();
+  };
+
+  // 1. Upper Canopy Primary Branches (spreading up into leaves & blossoms)
+  const branches = isMobile
+    ? [
+        { startX: -7, endX: -88, endY: topY - 92, ctrlX: -36, ctrlY: topY - 58, w0: 11 },
+        { startX: 6, endX: 84, endY: topY - 86, ctrlX: 34, ctrlY: topY - 54, w0: 10.5 },
+        { startX: -2, endX: -24, endY: topY - 108, ctrlX: -14, ctrlY: topY - 62, w0: 8.5 },
+      ]
+    : [
+        { startX: -11, endX: -138, endY: topY - 102, ctrlX: -58, ctrlY: topY - 64, w0: 15 },
+        { startX: 10, endX: 134, endY: topY - 96, ctrlX: 54, ctrlY: topY - 60, w0: 14.5 },
+        { startX: -4, endX: -48, endY: topY - 112, ctrlX: -26, ctrlY: topY - 68, w0: 11 },
+        { startX: 5, endX: 52, endY: topY - 108, ctrlX: 28, ctrlY: topY - 66, w0: 10.5 },
+      ];
+
+  ctx.save();
+  ctx.shadowColor = isLight ? "rgba(40, 32, 20, 0.14)" : "rgba(2, 8, 4, 0.42)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetX = 6;
+
+  branches.forEach((br) => {
+    const bGrad = ctx.createLinearGradient(
+      cx + br.startX,
+      topY + 18,
+      cx + br.endX,
+      br.endY
+    );
+    if (isLight) {
+      bGrad.addColorStop(0, "rgba(88, 72, 52, 0.34)");
+      bGrad.addColorStop(0.65, "rgba(96, 80, 58, 0.2)");
+      bGrad.addColorStop(1, "rgba(96, 80, 58, 0)");
+    } else {
+      bGrad.addColorStop(0, "rgba(58, 50, 38, 0.72)");
+      bGrad.addColorStop(0.65, "rgba(68, 62, 46, 0.42)");
+      bGrad.addColorStop(1, "rgba(68, 62, 46, 0)");
+    }
+    ctx.strokeStyle = bGrad;
+    ctx.lineCap = "round";
+    ctx.lineWidth = br.w0;
+    ctx.beginPath();
+    ctx.moveTo(cx + br.startX, topY + 22);
+    ctx.quadraticCurveTo(cx + br.ctrlX, br.ctrlY, cx + br.endX, br.endY);
+    ctx.stroke();
+
+    // Subtle golden sap highlight inside branch
+    ctx.strokeStyle = isLight
+      ? "rgba(154, 118, 30, 0.16)"
+      : "rgba(212, 175, 55, 0.22)";
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+  });
+
+  // 2. Trunk Base Silhouette + Soft Drop Shadow
+  traceTrunkPath();
+  ctx.fillStyle = isLight ? "rgba(84, 70, 52, 0.26)" : "#2c2821";
+  ctx.fill();
+  ctx.restore();
+
+  // 3. Clipped 3D Cylindrical Bark Shading, Fissures, Lenticels & Golden Veins
+  ctx.save();
+  traceTrunkPath();
+  ctx.clip();
+
+  // Cylindrical 3D lighting (sunlit left-center, deep shadow right)
+  const cylGrad = ctx.createLinearGradient(cx - botHalfW - 18, 0, cx + botHalfW + 18, 0);
+  if (isLight) {
+    cylGrad.addColorStop(0, "rgba(128, 108, 82, 0.16)");
+    cylGrad.addColorStop(0.28, "rgba(112, 94, 68, 0.28)");
+    cylGrad.addColorStop(0.58, "rgba(86, 70, 50, 0.22)");
+    cylGrad.addColorStop(1, "rgba(48, 38, 26, 0.12)");
+  } else {
+    cylGrad.addColorStop(0, "rgba(96, 86, 66, 0.48)");
+    cylGrad.addColorStop(0.26, "rgba(74, 68, 52, 0.62)");
+    cylGrad.addColorStop(0.58, "rgba(42, 46, 36, 0.7)");
+    cylGrad.addColorStop(0.88, "rgba(20, 26, 20, 0.68)");
+    cylGrad.addColorStop(1, "rgba(12, 18, 14, 0.42)");
+  }
+  ctx.fillStyle = cylGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Vertical organic bark fissures following the trunk curve
+  const fissureCount = isMobile ? 10 : 16;
+  for (let f = 0; f < fissureCount; f++) {
+    const lane = -0.78 + (f / (fissureCount - 1)) * 1.56;
+    const fStartT = seededRand(f * 3.7) * 0.25;
+    const fEndT = 0.65 + seededRand(f * 5.9) * 0.35;
+
+    ctx.beginPath();
+    for (let s = 0; s <= 18; s++) {
+      const lt = fStartT + (fEndT - fStartT) * (s / 18);
+      const y = topY + span * lt;
+      const hw = halfWidthAt(lt);
+      const wobble = Math.sin(lt * 14 + f * 2.1) * 2.2;
+      const x = cx + centerOffsetAt(lt) + hw * lane + wobble;
+      if (s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = isLight
+      ? "rgba(62, 50, 34, 0.14)"
+      : "rgba(14, 18, 14, 0.38)";
+    ctx.lineWidth = 1.2 + seededRand(f * 2.3) * 1.1;
+    ctx.stroke();
+
+    // Subtle sunlit ridge next to fissure
+    ctx.strokeStyle = isLight
+      ? "rgba(176, 148, 104, 0.14)"
+      : "rgba(136, 122, 92, 0.16)";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  // Characteristic Paulownia Lenticels (horizontal oval bark pores)
+  const lenticelCount = Math.floor(span / 18);
+  for (let l = 0; l < lenticelCount; l++) {
+    const lt = 0.04 + seededRand(l * 8.3 + 11) * 0.92;
+    const y = topY + span * lt;
+    const hw = halfWidthAt(lt) * 0.72;
+    const lx = cx + centerOffsetAt(lt) + (seededRand(l * 4.1) - 0.5) * 2 * hw;
+    const lw = 3.5 + seededRand(l * 6.7) * 6.5;
+    ctx.fillStyle = isLight
+      ? "rgba(146, 120, 78, 0.2)"
+      : "rgba(154, 138, 102, 0.22)";
+    ctx.beginPath();
+    ctx.ellipse(lx, y, lw, 1.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Delicate Golden Vascular / Sap Veins bridging Canopy to Roots
+  [-0.38, -0.1, 0.18, 0.42].forEach((lane, idx) => {
+    ctx.beginPath();
+    for (let s = 0; s <= 28; s++) {
+      const vt = s / 28;
+      const y = topY + span * vt;
+      const hw = halfWidthAt(vt);
+      const wave = Math.sin(vt * 10 + idx * 1.7) * (hw * 0.09);
+      const x = cx + centerOffsetAt(vt) + hw * lane + wave;
+      if (s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = isLight
+      ? "rgba(154, 118, 30, 0.24)"
+      : "rgba(212, 175, 55, 0.3)";
+    ctx.lineWidth = idx === 1 ? 1.5 : 1.05;
+    ctx.stroke();
+
+    ctx.strokeStyle = isLight
+      ? "rgba(212, 175, 55, 0.2)"
+      : "rgba(245, 231, 189, 0.36)";
+    ctx.lineWidth = 0.55;
+    ctx.stroke();
+  });
+
+  // Soft fade at bottom soil junction so trunk blends into the golden root collar
+  const soilFade = ctx.createLinearGradient(0, bottomY - 45, 0, bottomY + 12);
+  soilFade.addColorStop(0, "rgba(0,0,0,0)");
+  soilFade.addColorStop(
+    1,
+    isLight ? "rgba(154, 118, 30, 0.14)" : "rgba(212, 175, 55, 0.12)"
+  );
+  ctx.fillStyle = soilFade;
+  ctx.fillRect(0, bottomY - 45, w, 60);
+
+  ctx.restore();
+  return { canvas, w, h, topPad };
+}
+
 // Helper: evaluate point on cubic Bezier curve at t in [0, 1]
 function cubicPoint(
   p0: number,
@@ -873,7 +1104,8 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
         });
       }
 
-      // 4. Organic, Flowing Botanical Root System (Smooth S-Curves + Fine Capillaries)
+      // 4. Organic, Asymmetric Botanical Root System (Woody Root Collar -> Taproot -> Fine Capillaries)
+      let branchSeed = 1;
       const buildRootBranch = (
         x1: number,
         y1: number,
@@ -885,37 +1117,44 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
         lateralPull: number,
         startProgress: number
       ) => {
-        if (depth > maxDepth || thickness < 0.35) return;
+        if (depth > maxDepth || thickness < 0.4) return;
+        branchSeed += 1;
+        const r1 = seededRand(branchSeed * 3.1 + depth * 7.3);
+        const r2 = seededRand(branchSeed * 5.7 + depth * 11.1);
+        const r3 = seededRand(branchSeed * 9.3 + depth * 2.9);
 
-        const wave = Math.sin(depth * 1.9 + lateralPull * 2.4) * 0.24;
-        const targetAngle = angle + lateralPull * 0.14 + wave;
+        // Natural organic meander instead of uniform zigzags
+        const meander = (r1 - 0.5) * 0.46 + lateralPull * 0.08;
+        const targetAngle = Math.max(-1.42, Math.min(1.42, angle + meander));
 
         const x2 = x1 + Math.sin(targetAngle) * length;
         const y2 = y1 + Math.cos(targetAngle) * length;
 
         const perpX = Math.cos(targetAngle);
         const perpY = -Math.sin(targetAngle);
-        const bendMag = length * (0.28 + (depth % 2) * 0.12);
-        const dirSign = depth % 2 === 0 ? 1 : -1;
+        const bendMag1 = length * (0.14 + r2 * 0.22);
+        const bendMag2 = length * (0.12 + r3 * 0.2);
+        const dirSign1 = r1 > 0.5 ? 1 : -1;
+        const dirSign2 = r2 > 0.45 ? -dirSign1 : dirSign1;
 
         const cx1 =
-          x1 + Math.sin(targetAngle) * (length * 0.34) + perpX * bendMag * dirSign;
+          x1 + Math.sin(targetAngle) * (length * 0.35) + perpX * bendMag1 * dirSign1;
         const cy1 =
-          y1 + Math.cos(targetAngle) * (length * 0.34) + perpY * bendMag * dirSign;
+          y1 + Math.cos(targetAngle) * (length * 0.35) + perpY * bendMag1 * dirSign1;
 
         const cx2 =
           x1 +
-          Math.sin(targetAngle) * (length * 0.72) -
-          perpX * (bendMag * 0.85) * dirSign;
+          Math.sin(targetAngle) * (length * 0.7) +
+          perpX * bendMag2 * dirSign2;
         const cy2 =
           y1 +
-          Math.cos(targetAngle) * (length * 0.72) -
-          perpY * (bendMag * 0.85) * dirSign;
+          Math.cos(targetAngle) * (length * 0.7) +
+          perpY * bendMag2 * dirSign2;
 
         const duration = 0.22;
         const revealStart = Math.min(0.84, startProgress);
         const revealEnd = Math.min(1.0, revealStart + duration);
-        const nextThick = thickness * 0.66;
+        const nextThick = thickness * (0.58 + r3 * 0.1);
 
         rootSegments.push({
           x1,
@@ -931,71 +1170,77 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
           depth,
           revealStart,
           revealEnd,
-          hasNode: depth >= 2 && (depth + Math.round(Math.abs(lateralPull * 10))) % 2 === 0,
-          phase: depth * 1.3 + lateralPull * 3.1,
+          hasNode: (depth === 2 || depth === 3) && r2 > 0.72,
+          phase: depth * 1.4 + r1 * 4.2,
         });
 
-        const nextLen = length * (isMobile ? 0.78 : 0.84);
-        const childStart = revealStart + duration * 0.72;
+        const nextLen = length * (isMobile ? 0.72 + r2 * 0.1 : 0.76 + r2 * 0.12);
+        const childStart = revealStart + duration * 0.7;
+
+        // Asymmetric primary fork (stronger main continuation + lighter side fork)
+        const forkSpread = 0.24 + r3 * 0.22;
+        const mainSide = r1 > 0.5 ? 1 : -1;
 
         buildRootBranch(
           x2,
           y2,
-          targetAngle - 0.22 - (depth % 2) * 0.08,
+          targetAngle + mainSide * (forkSpread * 0.55),
           nextLen,
           nextThick,
           depth + 1,
           maxDepth,
-          lateralPull * 1.04,
+          lateralPull * 0.96,
           childStart
         );
 
         buildRootBranch(
           x2,
           y2,
-          targetAngle + 0.22 + ((depth + 1) % 2) * 0.08,
-          nextLen,
-          nextThick,
+          targetAngle - mainSide * (forkSpread * 1.15),
+          nextLen * (0.76 + r1 * 0.14),
+          nextThick * 0.82,
           depth + 1,
           maxDepth,
-          lateralPull * 1.04,
-          childStart
+          lateralPull * 1.05,
+          childStart + 0.02
         );
 
-        if (depth >= 2 && depth <= maxDepth - 1) {
-          const midX = cubicPoint(x1, cx1, cx2, x2, 0.55);
-          const midY = cubicPoint(y1, cy1, cy2, y2, 0.55);
+        // Occasional fine lateral rootlet from mid-curve
+        if (depth >= 1 && depth <= maxDepth - 2 && r3 > 0.35) {
+          const midT = 0.42 + r1 * 0.25;
+          const midX = cubicPoint(x1, cx1, cx2, x2, midT);
+          const midY = cubicPoint(y1, cy1, cy2, y2, midT);
           buildRootBranch(
             midX,
             midY,
-            targetAngle + dirSign * 0.48,
-            nextLen * 0.62,
+            targetAngle + (r2 > 0.5 ? 1 : -1) * (0.45 + r3 * 0.3),
+            nextLen * 0.58,
             nextThick * 0.52,
             depth + 2,
             maxDepth,
-            lateralPull * 1.1,
+            lateralPull * 1.08,
             revealStart + duration * 0.45
           );
         }
       };
 
+      // Spread roots across the flared trunk collar (not a single pinch point)
+      const collarSpan = isMobile ? 34 : 52;
       const rootConfigs = [
-        { angle: -1.24, len: height * 0.34, thick: 7.5, pull: -1.52 },
-        { angle: -0.96, len: height * 0.33, thick: 9.0, pull: -1.22 },
-        { angle: -0.66, len: height * 0.32, thick: 10.5, pull: -0.84 },
-        { angle: -0.34, len: height * 0.31, thick: 12.0, pull: -0.42 },
-        { angle: 0.0, len: height * 0.33, thick: 13.5, pull: 0.0 },
-        { angle: 0.34, len: height * 0.31, thick: 12.0, pull: 0.42 },
-        { angle: 0.66, len: height * 0.32, thick: 10.5, pull: 0.84 },
-        { angle: 0.96, len: height * 0.33, thick: 9.0, pull: 1.22 },
-        { angle: 1.24, len: height * 0.34, thick: 7.5, pull: 1.52 },
+        { offsetX: -collarSpan * 0.92, angle: -1.16, len: height * 0.28, thick: 8.5, pull: -1.25 },
+        { offsetX: -collarSpan * 0.64, angle: -0.82, len: height * 0.3, thick: 10.5, pull: -0.95 },
+        { offsetX: -collarSpan * 0.34, angle: -0.44, len: height * 0.31, thick: 12.5, pull: -0.52 },
+        { offsetX: -collarSpan * 0.04, angle: -0.06, len: height * 0.34, thick: 15.0, pull: -0.05 }, // Central taproot
+        { offsetX: collarSpan * 0.28, angle: 0.38, len: height * 0.31, thick: 12.0, pull: 0.48 },
+        { offsetX: collarSpan * 0.62, angle: 0.78, len: height * 0.29, thick: 10.0, pull: 0.92 },
+        { offsetX: collarSpan * 0.92, angle: 1.14, len: height * 0.27, thick: 8.2, pull: 1.22 },
       ];
 
       const maxDepth = isMobile ? 4 : 5;
       rootConfigs.forEach((cfg, idx) => {
         buildRootBranch(
-          centerX + cfg.angle * 18,
-          soilWorldY - 4,
+          centerX + cfg.offsetX,
+          soilWorldY - 6,
           cfg.angle,
           cfg.len,
           cfg.thick,
@@ -1007,6 +1252,11 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
       });
     };
 
+    let trunkSpriteDark: { canvas: SpriteCanvas; w: number; h: number; topPad: number } | null = null;
+    let trunkSpriteLight: { canvas: SpriteCanvas; w: number; h: number; topPad: number } | null = null;
+    let atmoGradDark: CanvasGradient | null = null;
+    let atmoGradLight: CanvasGradient | null = null;
+
     const handleResize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -1016,6 +1266,34 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const isMobile = width < 768;
+      const trunkSpanH = height * 1.76;
+      trunkSpriteDark = createTrunkSprite(trunkSpanH, isMobile, false);
+      trunkSpriteLight = createTrunkSprite(trunkSpanH, isMobile, true);
+
+      atmoGradDark = ctx.createRadialGradient(
+        width * 0.5,
+        height * 0.22,
+        10,
+        width * 0.5,
+        height * 0.5,
+        width * 0.75
+      );
+      atmoGradDark.addColorStop(0, "rgba(24, 58, 38, 0.28)");
+      atmoGradDark.addColorStop(1, "transparent");
+
+      atmoGradLight = ctx.createRadialGradient(
+        width * 0.5,
+        height * 0.22,
+        10,
+        width * 0.5,
+        height * 0.5,
+        width * 0.75
+      );
+      atmoGradLight.addColorStop(0, "rgba(212, 175, 55, 0.09)");
+      atmoGradLight.addColorStop(1, "transparent");
+
       buildBotanicalTree();
     };
 
@@ -1038,77 +1316,44 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
       );
 
       const currentPct = Math.round(scrollFraction * 100);
-      if (onScrollProgressRef.current && currentPct !== lastReportedPct) {
+      if (currentPct !== lastReportedPct) {
         lastReportedPct = currentPct;
-        onScrollProgressRef.current(scrollFraction);
+        window.dispatchEvent(
+          new CustomEvent("royaltree:scroll-progress", { detail: scrollFraction })
+        );
+        if (onScrollProgressRef.current) {
+          onScrollProgressRef.current(scrollFraction);
+        }
       }
 
       ctx.clearRect(0, 0, width, height);
 
-      // Ambient Emerald & Gold Radial Atmosphere
-      const radialAtmo = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.22,
-        10,
-        width * 0.5,
-        height * 0.5,
-        width * 0.75
-      );
-      if (isLight) {
-        radialAtmo.addColorStop(0, "rgba(212, 175, 55, 0.09)");
-        radialAtmo.addColorStop(1, "transparent");
-      } else {
-        radialAtmo.addColorStop(0, "rgba(24, 58, 38, 0.28)");
-        radialAtmo.addColorStop(1, "transparent");
+      // Ambient Emerald & Gold Radial Atmosphere (cached gradient)
+      const radialAtmo = isLight ? atmoGradLight : atmoGradDark;
+      if (radialAtmo) {
+        ctx.fillStyle = radialAtmo;
+        ctx.fillRect(0, 0, width, height);
       }
-      ctx.fillStyle = radialAtmo;
-      ctx.fillRect(0, 0, width, height);
 
       const cameraOffsetY = scrollFraction * (height * 2.3);
       const centerX = width * 0.5;
       const trunkTopY = height * 0.2 - cameraOffsetY;
       const soilScreenY = height * 1.96 - cameraOffsetY;
 
-      // 1. Central Striated Paulownia Trunk
-      if (soilScreenY > -100 && trunkTopY < height + 100) {
-        const trunkWidthTop = width < 768 ? 16 : 24;
-        const trunkWidthBottom = width < 768 ? 38 : 58;
-
-        const trunkGrad = ctx.createLinearGradient(
-          centerX - trunkWidthBottom,
-          0,
-          centerX + trunkWidthBottom,
-          0
+      // 1. Pre-rendered Photorealistic Paulownia Trunk & Upper Branches (120 FPS drawImage)
+      const activeTrunk = isLight ? trunkSpriteLight : trunkSpriteDark;
+      if (
+        activeTrunk &&
+        soilScreenY > -100 &&
+        trunkTopY - activeTrunk.topPad < height + 100
+      ) {
+        ctx.drawImage(
+          activeTrunk.canvas,
+          centerX - activeTrunk.w * 0.5,
+          trunkTopY - activeTrunk.topPad,
+          activeTrunk.w,
+          activeTrunk.h
         );
-        if (isLight) {
-          trunkGrad.addColorStop(0, "rgba(74, 62, 46, 0.04)");
-          trunkGrad.addColorStop(0.5, "rgba(92, 76, 54, 0.16)");
-          trunkGrad.addColorStop(1, "rgba(74, 62, 46, 0.04)");
-        } else {
-          trunkGrad.addColorStop(0, "rgba(26, 42, 31, 0.06)");
-          trunkGrad.addColorStop(0.5, "rgba(44, 68, 52, 0.24)");
-          trunkGrad.addColorStop(1, "rgba(26, 42, 31, 0.06)");
-        }
-
-        ctx.fillStyle = trunkGrad;
-        ctx.beginPath();
-        ctx.moveTo(centerX - trunkWidthTop, trunkTopY);
-        ctx.lineTo(centerX + trunkWidthTop, trunkTopY);
-        ctx.lineTo(centerX + trunkWidthBottom, soilScreenY);
-        ctx.lineTo(centerX - trunkWidthBottom, soilScreenY);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = isLight
-          ? "rgba(154, 118, 30, 0.22)"
-          : "rgba(212, 175, 55, 0.24)";
-        ctx.lineWidth = 1;
-        [-0.32, 0, 0.32].forEach((offset) => {
-          ctx.beginPath();
-          ctx.moveTo(centerX + trunkWidthTop * offset, trunkTopY);
-          ctx.lineTo(centerX + trunkWidthBottom * offset, soilScreenY);
-          ctx.stroke();
-        });
       }
 
       // 2. Massive Canopy Leaves & Cascading Blossoms (Fast Offscreen Sprite drawImage)
@@ -1225,15 +1470,20 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
         ctx.fill();
       }
 
-      // 5. Animated Organic Root Growth (Draws smoothly along curves as you scroll)
+      // 5. Animated Organic Root Growth (Woody Bark + Golden Vascular Core, 120 FPS)
       const rootGrowProgress = Math.min(
         1,
         Math.max(0, (scrollFraction - 0.42) / 0.56)
       );
 
       if (rootGrowProgress > 0.002) {
-        rootSegments.forEach((seg) => {
-          if (rootGrowProgress <= seg.revealStart) return;
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        for (let i = 0; i < rootSegments.length; i++) {
+          const seg = rootSegments[i];
+          if (rootGrowProgress <= seg.revealStart) continue;
 
           const rawT =
             (rootGrowProgress - seg.revealStart) /
@@ -1241,7 +1491,7 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
           const clampedT = Math.min(1, Math.max(0, rawT));
           const drawT = 1 - Math.pow(1 - clampedT, 2);
 
-          const breathe = Math.sin(t * 1.1 + seg.phase) * (seg.depth * 1.4);
+          const breathe = Math.sin(t * 0.95 + seg.phase) * (seg.depth * 1.1);
 
           const sy1 = seg.y1 - cameraOffsetY;
           const scy1 = seg.cy1 - cameraOffsetY + breathe * 0.4;
@@ -1252,18 +1502,19 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
             Math.min(sy1, sy2) > height + 150 ||
             Math.max(sy1, sy2) < -150
           ) {
-            return;
+            continue;
           }
 
-          ctx.save();
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
+          const currentThick =
+            seg.thicknessStart +
+            (seg.thicknessEnd - seg.thicknessStart) * drawT;
 
-          if (seg.depth <= 3) {
+          // Woody dark-bronze bark outer layer for primary & secondary roots (depth 1-2)
+          if (seg.depth <= 2) {
             ctx.strokeStyle = isLight
-              ? "rgba(154, 118, 30, 0.14)"
-              : "rgba(212, 175, 55, 0.16)";
-            ctx.lineWidth = seg.thicknessStart * 2.4;
+              ? "rgba(92, 72, 46, 0.36)"
+              : "rgba(56, 46, 30, 0.82)";
+            ctx.lineWidth = currentThick * 1.38;
             drawPartialBezier(
               ctx,
               seg.x1,
@@ -1278,13 +1529,14 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
             );
           }
 
-          const alpha = Math.max(0.24, (isLight ? 0.68 : 0.78) - seg.depth * 0.09);
+          // Warm golden-amber vascular core / delicate capillary filaments
+          const alpha = Math.max(0.18, (isLight ? 0.54 : 0.64) - seg.depth * 0.09);
           ctx.strokeStyle = isLight
-            ? `rgba(138, 100, 20, ${alpha})`
-            : `rgba(222, 185, 68, ${alpha})`;
-          ctx.lineWidth =
-            seg.thicknessStart +
-            (seg.thicknessEnd - seg.thicknessStart) * drawT;
+            ? `rgba(146, 108, 24, ${alpha})`
+            : seg.depth <= 2
+              ? `rgba(212, 175, 55, ${alpha})`
+              : `rgba(228, 194, 92, ${alpha})`;
+          ctx.lineWidth = seg.depth <= 2 ? Math.max(1.2, currentThick * 0.38) : currentThick;
 
           const { tipX, tipY } = drawPartialBezier(
             ctx,
@@ -1299,42 +1551,36 @@ const PaulowniaCanvasInner: React.FC<PaulowniaCanvasProps> = ({
             drawT
           );
 
+          // Fast lightweight growing tip spark (no per-segment createRadialGradient)
           if (drawT > 0.04 && drawT < 0.99) {
-            const spark = ctx.createRadialGradient(
-              tipX,
-              tipY,
-              0.5,
-              tipX,
-              tipY,
-              seg.depth <= 2 ? 12 : 7
-            );
-            spark.addColorStop(
-              0,
-              isLight ? "rgba(168, 122, 24, 0.95)" : "rgba(255, 246, 210, 0.98)"
-            );
-            spark.addColorStop(
-              0.5,
-              isLight ? "rgba(168, 122, 24, 0.35)" : "rgba(212, 175, 55, 0.45)"
-            );
-            spark.addColorStop(1, "transparent");
-            ctx.fillStyle = spark;
-            ctx.beginPath();
-            ctx.arc(tipX, tipY, seg.depth <= 2 ? 12 : 7, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          if (seg.hasNode && drawT >= 0.96) {
-            const pulse = 0.65 + 0.35 * Math.sin(t * 2.2 + seg.phase);
             ctx.fillStyle = isLight
-              ? `rgba(138, 100, 20, ${0.7 * pulse})`
-              : `rgba(245, 231, 189, ${0.88 * pulse})`;
+              ? "rgba(168, 122, 24, 0.25)"
+              : "rgba(212, 175, 55, 0.24)";
             ctx.beginPath();
-            ctx.arc(seg.x2, sy2, seg.depth === 2 ? 2.8 : 2.0, 0, Math.PI * 2);
+            ctx.arc(tipX, tipY, seg.depth <= 2 ? 7 : 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = isLight
+              ? "rgba(186, 138, 32, 0.88)"
+              : "rgba(255, 244, 206, 0.92)";
+            ctx.beginPath();
+            ctx.arc(tipX, tipY, seg.depth <= 2 ? 2.4 : 1.5, 0, Math.PI * 2);
             ctx.fill();
           }
 
-          ctx.restore();
-        });
+          // Subtle rare nutrient nodes
+          if (seg.hasNode && drawT >= 0.96) {
+            const pulse = 0.55 + 0.45 * Math.sin(t * 1.8 + seg.phase);
+            ctx.fillStyle = isLight
+              ? `rgba(146, 108, 24, ${0.45 * pulse})`
+              : `rgba(245, 231, 189, ${0.58 * pulse})`;
+            ctx.beginPath();
+            ctx.arc(seg.x2, sy2, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
       }
 
       animationFrameId = requestAnimationFrame(render);

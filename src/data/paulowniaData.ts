@@ -100,16 +100,16 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     titleKa: "ელიტარული ნერგების სანერგე",
     titleEn: "Elite Seedling Nursery",
     descriptionKa:
-      "სერტიფიცირებული 1-წლიანი ნერგები ძლიერი ფესვთა სისტემით — კასპის რაიონი, სოფ. ახალქალაქი.",
+      "სერტიფიცირებული 1-წლიანი ნერგები ძლიერი ფესვთა სისტემით — კასპის რაიონი, სოფ. მეფისქალაქი.",
     descriptionEn:
-      "Certified 1-year seedlings with vigorous root architecture — Akhalkalaki, Kaspi Municipality.",
+      "Certified 1-year seedlings with vigorous root architecture — Mepiskalaki, Kaspi Municipality.",
     imageUrl:
       "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1400&q=85",
     spanWide: true,
   },
   {
     id: "plantation-02",
-    code: "02 / AKHALKALAKI ESTATE",
+    code: "02 / MEPISKALAKI ESTATE",
     categoryKa: "სამრეწველო პლანტაცია",
     categoryEn: "COMMERCIAL PLANTATION",
     titleKa: "სამრეწველო პლანტაცია საქართველოში",

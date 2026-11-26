@@ -36,8 +36,7 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left Column: Editorial Headline & Actions */}
           <div className="lg:col-span-7 section-header-shield text-center lg:text-left">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[var(--gold-main)]/35 bg-[var(--glass-bg)] text-[11px] font-semibold tracking-[0.22em] uppercase text-[var(--gold-main)] mb-7">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold-main)] animate-pulse" />
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-[var(--gold-main)]/35 bg-[var(--glass-bg)] text-[11px] font-semibold tracking-[0.22em] uppercase text-[var(--gold-main)] mb-7">
               <span>
                 {lang === "ka"
                   ? "კასპის სანერგე • სამეფო ხე • PAULOWNIA TOMENTOSA"
@@ -45,7 +44,7 @@ export const Hero: React.FC<HeroProps> = ({
               </span>
             </div>
 
-            <h1 className="font-display text-4xl sm:text-6xl font-bold leading-[1.12] tracking-tight mb-6">
+            <h1 className="font-display text-4xl sm:text-6xl font-semibold leading-[1.2] tracking-[0.01em] mb-6">
               {lang === "ka" ? (
                 <>
                   მომავლის მწვანე{" "}
@@ -102,8 +101,8 @@ export const Hero: React.FC<HeroProps> = ({
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                   <span className="px-3.5 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-[#d4af37]/35 text-[10px] font-semibold tracking-[0.2em] uppercase text-[#f5e7bd]">
                     {lang === "ka"
-                      ? "სოფ. ახალქალაქი • კასპი"
-                      : "AKHALKALAKI • KASPI"}
+                      ? "სოფ. მეფისქალაქი • კასპი"
+                      : "MEPISKALAKI • KASPI"}
                   </span>
                   <span className="px-3 py-1.5 rounded-full bg-[#d4af37]/20 backdrop-blur-md border border-[#d4af37]/40 text-[10px] font-bold tracking-widest uppercase text-[#f5e7bd]">
                     625 / HA
@@ -116,7 +115,7 @@ export const Hero: React.FC<HeroProps> = ({
                       ? "სერტიფიცირებული გენეტიკა"
                       : "CERTIFIED GENETICS"}
                   </span>
-                  <h2 className="font-display text-xl sm:text-2xl font-bold text-[#f4f1ea] mb-1">
+                  <h2 className="font-display text-lg sm:text-[22px] leading-[1.2] tracking-[0.01em] font-semibold text-[#f4f1ea] mb-1">
                     პავლოვნია ტომენტოზა • სამეფო ხე
                   </h2>
                   <p className="text-xs text-[#f4f1ea]/75">
@@ -139,7 +138,7 @@ export const Hero: React.FC<HeroProps> = ({
               key={item.en}
               className="glass-panel rounded-2xl p-5 text-center"
             >
-              <div className="font-display text-2xl sm:text-3xl font-bold text-gold-gradient mb-1">
+              <div className="font-body text-2xl sm:text-3xl font-semibold tabular-nums text-gold-gradient mb-1">
                 {item.value}
               </div>
               <div className="text-xs tracking-wider uppercase text-[var(--text-muted)]">

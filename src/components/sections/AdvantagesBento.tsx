@@ -89,7 +89,7 @@ export const AdvantagesBento: React.FC<AdvantagesBentoProps> = ({ lang }) => {
           <span className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[var(--gold-main)] block mb-3">
             {lang === "ka" ? "01 / ბოტანიკური უპირატესობა" : "01 / BOTANICAL EDGE"}
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-semibold mb-4">
+          <h2 className="font-display text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-[0.01em] mb-4">
             {lang === "ka" ? "რატომ სამეფო ხე?" : "Why Royal Tree?"}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
@@ -109,7 +109,7 @@ export const AdvantagesBento: React.FC<AdvantagesBentoProps> = ({ lang }) => {
             >
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <span className="font-display text-3xl sm:text-4xl font-light text-[var(--gold-main)]/45">
+                  <span className="font-body text-3xl sm:text-4xl font-light tabular-nums text-[var(--gold-main)]/45">
                     {card.num}
                   </span>
                   <div className="w-12 h-12 rounded-2xl border border-[var(--gold-main)]/30 bg-[var(--gold-main)]/10 flex items-center justify-center text-[var(--gold-main)]">

@@ -90,7 +90,7 @@ export const CalculatorSection: React.FC<RoiConfiguratorProps> = ({
           <span className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[var(--gold-main)] block mb-3">
             {lang === "ka" ? "02 / ინვესტიციის დაგეგმვა" : "02 / INVESTMENT PLANNER"}
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold mb-4">
+          <h2 className="font-display text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-[0.01em] mb-4">
             {lang === "ka"
               ? "ნერგების კონფიგურატორი & ROI კალკულატორი"
               : "Seedling Configurator & ROI Calculator"}
@@ -159,7 +159,7 @@ export const CalculatorSection: React.FC<RoiConfiguratorProps> = ({
                     {lang === "ka" ? tier.titleKa : tier.titleEn}
                   </h3>
 
-                  <div className="font-display text-3xl font-bold text-gold-gradient mb-2">
+                  <div className="font-body text-3xl font-semibold tabular-nums text-gold-gradient mb-2">
                     {tier.price}₾
                   </div>
 
@@ -272,7 +272,7 @@ export const CalculatorSection: React.FC<RoiConfiguratorProps> = ({
                 <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
                   {lang === "ka" ? "სრული ბიუჯეტი:" : "Total Budget:"}
                 </span>
-                <span className="font-display text-3xl font-bold text-gold-gradient">
+                <span className="font-body text-3xl font-semibold tabular-nums text-gold-gradient">
                   {totalPrice.toLocaleString()} ₾
                 </span>
               </div>

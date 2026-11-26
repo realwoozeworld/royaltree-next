@@ -1,6 +1,32 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import {
+  Cormorant_Garamond,
+  DM_Sans,
+  Noto_Sans_Georgian,
+} from "next/font/google";
 import "./globals.css";
+
+const notoSansGeorgian = Noto_Sans_Georgian({
+  subsets: ["georgian", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-sans-georgian",
+  display: "swap",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
 
 const siteTitle = "სამეფო ხე | Royal Tree — პავლოვნიის ნერგები და პლანტაციები";
 const siteDescription =
@@ -27,7 +53,7 @@ export const metadata: Metadata = {
     "ხე-ტყის ბიზნესი",
     "აგრო ინვესტიცია",
     "ნერგები საქართველოში",
-    "კასპი ახალქალაქი ნერგები",
+    "კასპი მეფისქალაქი ნერგები",
     "ROI კალკულატორი",
     "მერქნის წარმოება",
     // English Keywords
@@ -86,7 +112,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ka" className="dark" suppressHydrationWarning>
+    <html
+      lang="ka"
+      className={`dark ${notoSansGeorgian.variable} ${cormorantGaramond.variable} ${dmSans.variable}`}
+      suppressHydrationWarning
+    >
       <body className="antialiased selection:bg-[#d4af37]/30 selection:text-[#f5e7bd]">
         {children}
         <Analytics />

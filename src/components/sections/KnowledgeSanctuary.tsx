@@ -28,7 +28,7 @@ export const KnowledgeSanctuary: React.FC<KnowledgeSanctuaryProps> = ({
           <span className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[var(--gold-main)] block mb-3">
             {lang === "ka" ? "03 / აგრო-ენციკლოპედია" : "03 / AGRO-ENCYCLOPEDIA"}
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold mb-4">
+          <h2 className="font-display text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-[0.01em] mb-4">
             {lang === "ka" ? "ცოდნის სანქტუარიუმი" : "Knowledge Sanctuary"}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)] max-w-2xl mx-auto">
@@ -84,7 +84,7 @@ export const KnowledgeSanctuary: React.FC<KnowledgeSanctuaryProps> = ({
                 key={m.labelEn}
                 className="rounded-2xl bg-[var(--gold-main)]/8 border border-[var(--gold-main)]/20 p-4 text-center"
               >
-                <div className="font-display text-2xl font-bold text-gold-gradient mb-1">
+                <div className="font-body text-2xl font-semibold tabular-nums text-gold-gradient mb-1">
                   {m.value}
                 </div>
                 <div className="text-xs text-[var(--text-muted)]">

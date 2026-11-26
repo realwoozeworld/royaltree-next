@@ -14,7 +14,7 @@ export default function NotFound() {
       {/* Editorial Watermark "404" */}
       <div
         aria-hidden="true"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none font-display font-bold text-[32vw] md:text-[28vw] leading-none text-white/[0.018] tracking-tighter"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none font-body font-bold tabular-nums text-[32vw] md:text-[28vw] leading-none text-white/[0.018] tracking-tighter"
       >
         404
       </div>
@@ -36,7 +36,7 @@ export default function NotFound() {
             </div>
 
             {/* Heading */}
-            <h1 className="font-display text-3xl sm:text-5xl lg:text-5xl font-bold tracking-tight text-[#f4f1ea] leading-[1.15]">
+            <h1 className="font-display text-3xl sm:text-5xl lg:text-5xl font-semibold tracking-[0.01em] text-[#f4f1ea] leading-[1.2]">
               გზა აგერიათ,{" "}
               <span className="text-gold-gradient block sm:inline">
                 გვერდი ვერ მოიძებნა

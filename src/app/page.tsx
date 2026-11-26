@@ -21,7 +21,6 @@ import {
 export default function HomePage() {
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [lang, setLang] = useState<Language>("ka");
-  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [orderModalOpen, setOrderModalOpen] = useState<boolean>(false);
   const [quantities, setQuantities] = useState<TierQuantities>({
     tier1: 125,
@@ -71,8 +70,8 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen overflow-x-hidden">
-      <PaulowniaCanvas theme={theme} onScrollProgress={setScrollProgress} />
-      <DepthHud progress={scrollProgress} lang={lang} />
+      <PaulowniaCanvas theme={theme} />
+      <DepthHud lang={lang} />
 
       <Navbar
         theme={theme}
